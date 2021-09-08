@@ -56,7 +56,7 @@ namespace mycookingrecepies
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
+                    ValidateIssuer = false,
                     ValidateAudience = false,
                     RequireExpirationTime = false,
                     ValidateLifetime = true
@@ -79,9 +79,10 @@ namespace mycookingrecepies
 
             app.UseRouting();
 
+            app.UseAuthentication();
+
             app.UseAuthorization();
 
-            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {

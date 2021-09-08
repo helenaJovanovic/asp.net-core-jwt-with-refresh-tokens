@@ -10,7 +10,6 @@ namespace mycookingrecepies.Models
         [Required]
         public string text{get;set;}
 
-        [Required]
         public string usernameId{get;set;}
     }
 }
