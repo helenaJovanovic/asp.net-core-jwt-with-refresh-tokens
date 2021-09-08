@@ -89,8 +89,45 @@ namespace mycookingrecepies.Controllers
 
             return new JsonResult("Something went wrong") {StatusCode = 500};
         }
-        
-       
+
+        [HttpPut]
+        public async Task<IActionResult> ChangeRecipe(Recipe recipe)
+        {
+            //get current user
+            var userId = User.Claims.First(p => p.Type == "id").Value.ToString();
+    
+            //find if there is an entry with the same recipe id 
+            bool exists = _context.Recipes.Any(p => p.Id == recipe.Id);
+            if (exists == false)
+            {
+                return NotFound();
+            }
+
+            //Recipe can be updated only if the username of the current user
+            //matches the usernameId of that existing recipe in the db
+            bool usernameMatches = _context.Recipes.Any(p => p.Id == recipe.Id && p.usernameId == userId);
+            //!!! can't track two entities with the same id in the same time!!! use .Any to check values !!!
+            if (!usernameMatches)
+            {
+                return Unauthorized();
+            }
+
+            recipe.usernameId = userId;
+
+            //change the recipe entry in the db and set the state to modified
+            _context.Entry(recipe).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch(DbUpdateConcurrencyException)
+            {
+                throw;
+            }
+
+            return NoContent();
+        }
 
     }
 }
