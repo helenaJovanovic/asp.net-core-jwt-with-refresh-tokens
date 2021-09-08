@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
@@ -28,7 +29,7 @@ namespace mycookingrecepies.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetRecipes()
+        public async Task<ActionResult<IEnumerable<Recipe>>> GetRecipes()
         {
             //Shows all recipes for now
             //TODO: Get the correct user identifier, jwt claims.sub ~ into what??
@@ -41,7 +42,7 @@ namespace mycookingrecepies.Controllers
 
             Debug.Write(userId);
 
-            var items = _context.Recipes.Where(x => x.usernameId == userId).ToList();
+            var items = await _context.Recipes.Where(x => x.usernameId == userId).ToListAsync();
 
             return Ok(items);
         }
@@ -87,6 +88,9 @@ namespace mycookingrecepies.Controllers
             }
 
             return new JsonResult("Something went wrong") {StatusCode = 500};
-        }      
+        }
+        
+       
+
     }
 }
