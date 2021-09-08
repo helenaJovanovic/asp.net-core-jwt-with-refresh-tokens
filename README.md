@@ -1,10 +1,8 @@
 # asp.net-core-jwt-with-refresh-tokens
 
-Wep API for saving cooking recipes.
+Recipes manager in .NET Core Web Api
 
-Users are authenticated using JWT tokens and only have authorization to view, save and change their own recipes.
-
-For now it has an ability to register a new user and to provide login. 
+Authorization and authentication practice project using ASP.NET Core Identity and JWT tokens. Only registered users can use the Web Api and they can create, edit and delete only their own entries.
 
 </br>
 
