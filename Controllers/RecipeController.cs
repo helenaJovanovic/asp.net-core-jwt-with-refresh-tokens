@@ -129,5 +129,21 @@ namespace mycookingrecepies.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteRecipe(int id)
+        {
+            var recipe = await _context.Recipes.FindAsync(id);
+
+            if(recipe == null)
+            {
+                return NotFound();
+            }
+
+            _context.Recipes.Remove(recipe);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
     }
 }
