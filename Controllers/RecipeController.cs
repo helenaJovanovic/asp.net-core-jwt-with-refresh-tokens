@@ -53,7 +53,7 @@ namespace mycookingrecepies.Controllers
 
             var userId = User.Claims.First(p => p.Type == "id").Value.ToString();
 
-            var item = await _context.Recipes.FirstOrDefaultAsync(z => z.Id == id && z.usernameId == userId);
+            var item = await _context.Recipes.FirstOrDefaultAsync(z => z.RecipeId == id && z.usernameId == userId);
 
             if (item == null)
             {
@@ -76,7 +76,7 @@ namespace mycookingrecepies.Controllers
 
                 Recipe recipe = new Recipe
                 {
-                    Id = rec.Id,
+                    RecipeId = rec.RecipeId,
                     text = rec.text,
                     usernameId = userId
                 };
@@ -84,12 +84,12 @@ namespace mycookingrecepies.Controllers
                 await _context.Recipes.AddAsync(recipe);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetRecipe", new {recipe.Id}, recipe);
+                return CreatedAtAction("GetRecipe", new {recipe.RecipeId }, recipe);
             }
 
             return new JsonResult("Something went wrong") {StatusCode = 500};
         }
-
+        
         [HttpPut]
         public async Task<IActionResult> ChangeRecipe(Recipe recipe)
         {
@@ -97,19 +97,10 @@ namespace mycookingrecepies.Controllers
             var userId = User.Claims.First(p => p.Type == "id").Value.ToString();
     
             //find if there is an entry with the same recipe id 
-            bool exists = _context.Recipes.Any(p => p.Id == recipe.Id);
+            bool exists = _context.Recipes.Any(p => p.RecipeId == recipe.RecipeId && p.usernameId == userId);
             if (exists == false)
             {
                 return NotFound();
-            }
-
-            //Recipe can be updated only if the username of the current user
-            //matches the usernameId of that existing recipe in the db
-            bool usernameMatches = _context.Recipes.Any(p => p.Id == recipe.Id && p.usernameId == userId);
-            //!!! can't track two entities with the same id in the same time!!! use .Any to check values !!!
-            if (!usernameMatches)
-            {
-                return Unauthorized();
             }
 
             recipe.usernameId = userId;
@@ -134,7 +125,7 @@ namespace mycookingrecepies.Controllers
         {
             var recipe = await _context.Recipes.FindAsync(id);
 
-            if(recipe == null)
+            if (recipe == null)
             {
                 return NotFound();
             }
@@ -145,5 +136,57 @@ namespace mycookingrecepies.Controllers
             return NoContent();
         }
 
+        
+        [HttpGet("ingr/{RecipeId}")]
+        public async Task<ActionResult<IEnumerable<Ingridient>>> GetIngredients(int RecipeId)
+        {
+
+            //Find the recipe by the id if the current user id mataches the user id for that recipe in the db
+            var userId = User.Claims.First(p => p.Type == "id").Value.ToString();
+
+            //Include must be added for Ingridients
+
+            bool exists = _context.Recipes.Any(p => p.RecipeId == RecipeId && p.usernameId == userId);
+            if (exists == false)
+            {
+                return NotFound();
+            }
+
+            List<int> ingridientRecipes = await _context.IngridientRecipes.Where(x => x.RecipeId == RecipeId).Select(x => x.IngridientId).ToListAsync();
+
+            List<Ingridient> ingridients = await _context.Ingridients.Where(x => ingridientRecipes.Contains(x.IngridientId)).ToListAsync();
+
+
+            return ingridients;
+        }
+        
+        
+        [HttpPost("ingr/{RecipeId}")]
+        public async Task<IActionResult> AddIngredient(int RecipeId, [FromBody] Ingridient ingr)
+        {
+            if (ModelState.IsValid)
+            {
+                //prvo da li postoji takav username i recept sa takvim id i userid
+                var userId = User.Claims.First(p => p.Type == "id").Value.ToString();
+
+                Recipe recipe = await _context.Recipes.Where(p => p.RecipeId == RecipeId && p.usernameId == userId).SingleOrDefaultAsync();
+                if (recipe == null)
+                {
+                    return NotFound();
+                }
+
+                IngridientRecipe ir = new IngridientRecipe { Recipe = recipe, Ingridient = ingr};
+
+                await _context.IngridientRecipes.AddAsync(ir);
+                await _context.Ingridients.AddAsync(ingr);
+
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction("AddIngredient", new { ingr.IngridientId }, ingr);
+            }
+
+            return new JsonResult("Something went wrong") { StatusCode = 500 };
+        }
+     
     }
 }

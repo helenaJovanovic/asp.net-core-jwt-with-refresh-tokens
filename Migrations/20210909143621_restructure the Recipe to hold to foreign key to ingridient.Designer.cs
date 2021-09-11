@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using mycookingrecepies.Data;
 
 namespace mycookingrecepies.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210909143621_restructure the Recipe to hold to foreign key to ingridient")]
+    partial class restructuretheRecipetoholdtoforeignkeytoingridient
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -221,7 +223,7 @@ namespace mycookingrecepies.Migrations
 
             modelBuilder.Entity("mycookingrecepies.Models.Ingridient", b =>
                 {
-                    b.Property<int>("IngridientId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -230,29 +232,14 @@ namespace mycookingrecepies.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("IngridientId");
+                    b.HasKey("Id");
 
                     b.ToTable("Ingridients");
                 });
 
-            modelBuilder.Entity("mycookingrecepies.Models.IngridientRecipe", b =>
-                {
-                    b.Property<int>("RecipeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IngridientId")
-                        .HasColumnType("int");
-
-                    b.HasKey("RecipeId", "IngridientId");
-
-                    b.HasIndex("IngridientId");
-
-                    b.ToTable("IngridientRecipes");
-                });
-
             modelBuilder.Entity("mycookingrecepies.Models.Recipe", b =>
                 {
-                    b.Property<int>("RecipeId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -264,7 +251,7 @@ namespace mycookingrecepies.Migrations
                     b.Property<string>("usernameId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("RecipeId");
+                    b.HasKey("Id");
 
                     b.ToTable("Recipes");
                 });
@@ -318,30 +305,6 @@ namespace mycookingrecepies.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("mycookingrecepies.Models.IngridientRecipe", b =>
-                {
-                    b.HasOne("mycookingrecepies.Models.Ingridient", "Ingridient")
-                        .WithMany()
-                        .HasForeignKey("IngridientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("mycookingrecepies.Models.Recipe", "Recipe")
-                        .WithMany("IngridientRecipes")
-                        .HasForeignKey("RecipeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Ingridient");
-
-                    b.Navigation("Recipe");
-                });
-
-            modelBuilder.Entity("mycookingrecepies.Models.Recipe", b =>
-                {
-                    b.Navigation("IngridientRecipes");
                 });
 #pragma warning restore 612, 618
         }
