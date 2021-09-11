@@ -36,6 +36,19 @@ Body of the request(json):
 	"text": "changed recipe text"
 }
 ```
+#### GET [url]/api/recipe/ingr{id}
+- Get ingridients that the recipe with id has, if the current user has created the recipe
+
+#### POST [url]/api/recipe/ingr{id}
+- Create a new ingredient and form a relationship with a recipe that has primarykey of id
+- Ingridient has to be provided in the body of the request in json form
+
+Body of the request(json):
+```
+{
+	"name": "The name of the ingridient"
+}
+```
 
 ### TODO: 
 - Add refresh tokens and logout
