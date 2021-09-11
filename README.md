@@ -48,6 +48,7 @@ Body of the request(json):
 {
 	"name": "The name of the ingridient"
 }
+```
 
 ### TODO: 
 - Add refresh tokens and logout
