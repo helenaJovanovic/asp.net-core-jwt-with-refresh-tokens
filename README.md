@@ -6,6 +6,27 @@ Authorization and authentication practice project using ASP.NET Core Identity an
 
 </br>
 
+## Authorization management:
+
+### Register: [url]/api/AuthManagement/Login
+- Body of the request
+```
+{
+    "name": "hex@gmail.com",
+    "email": "email@email.com",
+    "password": "Password123!"
+}
+```
+
+### Logging in: [url]/api/AuthManagement/Login
+- Body of the request
+```
+{
+    "email": "email@email.com",
+    "password": "Password123!"
+}
+```
+
 ## Must be logged in:
 
 #### GET [url]/api/recipe
@@ -36,10 +57,10 @@ Body of the request(json):
 	"text": "changed recipe text"
 }
 ```
-#### GET [url]/api/recipe/ingr{id}
+#### GET [url]/api/recipe/ingr/{id}
 - Get ingridients that the recipe with id has, if the current user has created the recipe
 
-#### POST [url]/api/recipe/ingr{id}
+#### POST [url]/api/recipe/ingr/{id}
 - Create a new ingredient and form a relationship with a recipe that has primarykey of id
 - Ingridient has to be provided in the body of the request in json form
 
@@ -49,6 +70,12 @@ Body of the request(json):
 	"name": "The name of the ingridient"
 }
 ```
+
+#### PUT [url]/api/recipe/ingr/{RecipeId}/{IngrId}
+- Add an existing ingrident to a recipe
+
+#### DELETE [url]/api/recipe/ingr/{RecipeId}/{IngrId}
+- Remove an ingridient from a recipe
 
 ### TODO: 
 - Add refresh tokens and logout

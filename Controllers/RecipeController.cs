@@ -84,7 +84,7 @@ namespace mycookingrecepies.Controllers
                 await _context.Recipes.AddAsync(recipe);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction("GetRecipe", new {recipe.RecipeId }, recipe);
+                return CreatedAtAction("CreateItem", new {recipe.RecipeId }, recipe);
             }
 
             return new JsonResult("Something went wrong") {StatusCode = 500};
@@ -93,36 +93,44 @@ namespace mycookingrecepies.Controllers
         [HttpPut]
         public async Task<IActionResult> ChangeRecipe(Recipe recipe)
         {
-            //get current user
-            var userId = User.Claims.First(p => p.Type == "id").Value.ToString();
-    
-            //find if there is an entry with the same recipe id 
-            bool exists = _context.Recipes.Any(p => p.RecipeId == recipe.RecipeId && p.usernameId == userId);
-            if (exists == false)
+
+            if (ModelState.IsValid)
             {
-                return NotFound();
+                //get current user
+                var userId = User.Claims.First(p => p.Type == "id").Value.ToString();
+
+                //find if there is an entry with the same recipe id 
+                bool exists = _context.Recipes.Any(p => p.RecipeId == recipe.RecipeId && p.usernameId == userId);
+                if (exists == false)
+                {
+                    return NotFound();
+                }
+
+                recipe.usernameId = userId;
+
+                //change the recipe entry in the db and set the state to modified
+                _context.Entry(recipe).State = EntityState.Modified;
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    throw;
+                }
+
+                return NoContent();
             }
 
-            recipe.usernameId = userId;
-
-            //change the recipe entry in the db and set the state to modified
-            _context.Entry(recipe).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch(DbUpdateConcurrencyException)
-            {
-                throw;
-            }
-
-            return NoContent();
+            return new JsonResult("Invalid modelstate") { StatusCode = 500 };
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRecipe(int id)
         {
+            var userId = User.Claims.First(p => p.Type == "id").Value.ToString();
+
             var recipe = await _context.Recipes.FindAsync(id);
 
             if (recipe == null)
@@ -130,10 +138,15 @@ namespace mycookingrecepies.Controllers
                 return NotFound();
             }
 
-            _context.Recipes.Remove(recipe);
-            await _context.SaveChangesAsync();
+            if (recipe.usernameId == userId)
+            {
+                _context.Recipes.Remove(recipe);
+                await _context.SaveChangesAsync();
 
-            return NoContent();
+                return NoContent();
+            }
+
+            return new JsonResult("The recipe cannot be deleted") { StatusCode = 500 };
         }
 
         
@@ -187,6 +200,73 @@ namespace mycookingrecepies.Controllers
 
             return new JsonResult("Something went wrong") { StatusCode = 500 };
         }
-     
+
+        //Add an existing Ingridient to a recipe
+        [HttpPut("ingr/{RecipeId}/{IngrId}")]
+        public async Task<IActionResult> AddExistingIngridientToRecipe(int RecipeId, int IngrId)
+        {
+            if (ModelState.IsValid)
+            {
+                var userId = User.Claims.First(p => p.Type == "id").Value.ToString();
+
+                Recipe recipe = await _context.Recipes.Where(p => p.RecipeId == RecipeId && p.usernameId == userId).SingleOrDefaultAsync();
+                if (recipe == null)
+                {
+                    return NotFound("Recipe not found");
+                }
+
+                Ingridient ingr = await _context.Ingridients.FindAsync(IngrId);
+                if (ingr == null)
+                {
+                    return NotFound("Ingridient not found");
+                }
+
+                IngridientRecipe ir = new IngridientRecipe { Recipe = recipe, Ingridient = ingr };
+
+                await _context.IngridientRecipes.AddAsync(ir);
+
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+
+            }
+
+            return new JsonResult("Something went wrong") { StatusCode = 500 };
+        }
+
+        [HttpDelete("ingr/{RecipeId}/{IngrId}")]
+        public async Task<IActionResult> DeleteIngridientFromRecipe(int RecipeId, int IngrId)
+        {
+            var userId = User.Claims.First(p => p.Type == "id").Value.ToString();
+
+            var recipe = await _context.Recipes.FindAsync(RecipeId);
+
+            if (recipe == null)
+            {
+                return NotFound();
+            }
+
+            var ingr = await _context.Ingridients.FindAsync(IngrId);
+            
+            if(ingr == null)
+            {
+                return NotFound();
+            }
+
+            if(recipe.usernameId == userId)
+            {
+                var ir = await _context.IngridientRecipes.FindAsync(RecipeId, IngrId);
+
+                _context.Ingridients.Remove(ingr);
+                _context.IngridientRecipes.Remove(ir);
+
+                await _context.SaveChangesAsync();
+
+                return NoContent();
+            }
+
+            return new JsonResult("Something went wrong") { StatusCode = 500 };
+        }
+
     }
 }
