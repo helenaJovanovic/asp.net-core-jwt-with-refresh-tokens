@@ -126,3 +126,7 @@ D:\asp.net-core-jwt-with-refresh-tokens\bin\Debug\net5.0\System.Web.WebPages.Dep
 D:\asp.net-core-jwt-with-refresh-tokens\bin\Debug\net5.0\System.Web.WebPages.Razor.dll
 D:\asp.net-core-jwt-with-refresh-tokens\bin\Debug\net5.0\System.Web.WebPages.dll
 D:\asp.net-core-jwt-with-refresh-tokens\bin\Debug\net5.0\Microsoft.Web.Infrastructure.dll
+D:\asp.net-core-jwt-with-refresh-tokens\bin\Debug\net5.0\Microsoft.AspNetCore.JsonPatch.dll
+D:\asp.net-core-jwt-with-refresh-tokens\bin\Debug\net5.0\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+D:\asp.net-core-jwt-with-refresh-tokens\bin\Debug\net5.0\Newtonsoft.Json.dll
+D:\asp.net-core-jwt-with-refresh-tokens\bin\Debug\net5.0\Newtonsoft.Json.Bson.dll

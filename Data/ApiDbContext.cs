@@ -11,6 +11,7 @@ namespace mycookingrecepies.Data
         public DbSet<Ingridient> Ingridients{ get; set; }
         public DbSet<IngridientRecipe> IngridientRecipes { get; set; }
 
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         public ApiDbContext(DbContextOptions<ApiDbContext> options): base(options)
         {
 

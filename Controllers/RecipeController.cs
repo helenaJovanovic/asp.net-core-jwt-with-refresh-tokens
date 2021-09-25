@@ -40,7 +40,6 @@ namespace mycookingrecepies.Controllers
 
             var userId = User.Claims.First(p => p.Type == "id").Value.ToString();
 
-            Debug.Write(userId);
 
             var items = await _context.Recipes.Where(x => x.usernameId == userId).ToListAsync();
 
@@ -72,7 +71,6 @@ namespace mycookingrecepies.Controllers
 
                 var userId = User.Claims.First(p => p.Type == "id").Value.ToString();
 
-                Debug.Write(userId);
 
                 Recipe recipe = new Recipe
                 {
